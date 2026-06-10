@@ -1,0 +1,65 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: awsome-shop-point-service
+
+  # Jackson 配置 - 支持网关参数注入
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # Redis 配置 (通用配置)
+  data:
+    redis:
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  # Flyway 数据库迁移配置
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    # 忽略找不到的迁移脚本（本地开发环境数据库可能包含已删除的迁移）
+    ignore-migration-patterns: "*:missing,*:future"
+
+server:
+  port: 8003
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.awsome.shop.point.repository.mysql.po
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      # 逻辑删除改为在各 PO 上单独使用 @TableLogic 注解配置
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Micrometer Tracing 配置
+management:
+  tracing:
+    sampling:
+      probability: 1.0  # 确保所有请求都追踪 (100%)
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+      base-path: /actuator
+  metrics:
+    tags:
+      application: awsome-shop-point-service
+
+# 说明: 本文件包含所有环境共享的配置
+# 环境特定配置请在对应的 application-{profile}.yml 中覆盖
