@@ -1,9 +1,9 @@
 name: ci
 on:
   push:
-    branches: [main]
+    branches: [main, intermediate]
   pull_request:
-    branches: [main]
+    branches: [main, intermediate]
 
 jobs:
   build-test-package:
