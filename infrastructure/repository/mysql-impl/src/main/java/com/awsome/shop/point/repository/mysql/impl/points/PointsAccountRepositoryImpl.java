@@ -29,6 +29,12 @@ public class PointsAccountRepositoryImpl implements PointsAccountRepository {
     }
 
     @Override
+    public PointsAccountEntity getByUserIdForUpdate(Long userId) {
+        PointsAccountPO po = pointsAccountMapper.selectByUserIdForUpdate(userId);
+        return po == null ? null : toEntity(po);
+    }
+
+    @Override
     public List<PointsAccountEntity> findAll() {
         return pointsAccountMapper.selectList(null).stream()
                 .map(this::toEntity)
@@ -53,6 +59,7 @@ public class PointsAccountRepositoryImpl implements PointsAccountRepository {
         entity.setId(po.getId());
         entity.setUserId(po.getUserId());
         entity.setBalance(po.getBalance());
+        entity.setVersion(po.getVersion());
         entity.setCreatedAt(po.getCreatedAt());
         entity.setUpdatedAt(po.getUpdatedAt());
         return entity;
@@ -63,6 +70,7 @@ public class PointsAccountRepositoryImpl implements PointsAccountRepository {
         po.setId(entity.getId());
         po.setUserId(entity.getUserId());
         po.setBalance(entity.getBalance());
+        po.setVersion(entity.getVersion());
         return po;
     }
 }

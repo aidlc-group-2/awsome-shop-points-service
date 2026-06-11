@@ -18,6 +18,9 @@ public class PointsAccountEntity {
     /** 当前可用积分余额 */
     private Long balance;
 
+    /** 乐观锁版本号（作为悲观锁之外的并发兜底） */
+    private Integer version;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

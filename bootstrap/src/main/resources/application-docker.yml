@@ -1,14 +1,15 @@
 # Docker 容器环境配置
-# 数据库连接指向 docker-compose 中的 mysql 服务名
+# 已对齐统一部署契约：端口 8081 + DB_* 变量 + 库名 awsome_shop_point
 
 server:
-  port: 8003
+  port: 8081
 
 spring:
+  # 数据源配置
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/awsomeshop_points?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true}
-    username: ${SPRING_DATASOURCE_USERNAME:awsomeshop}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:awsome_shop_point}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
@@ -17,11 +18,14 @@ spring:
       max-active: 20
       max-wait: 60000
 
+  # Redis 配置
   data:
     redis:
       host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
+      database: 0
 
+  # Flyway 自动迁移（points 表结构由 Flyway 管理）
   flyway:
     enabled: true
     baseline-on-migrate: true
