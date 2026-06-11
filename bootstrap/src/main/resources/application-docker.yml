@@ -1,68 +1,27 @@
-# Docker Environment Configuration
-# 容器化部署环境配置
+# Docker 容器环境配置
+# 数据库连接指向 docker-compose 中的 mysql 服务名
 
 server:
-  port: 8081
+  port: 8003
 
 spring:
-  # Redis 配置
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/awsomeshop_points?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:awsomeshop}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5
+      min-idle: 2
+      max-active: 20
+      max-wait: 60000
+
   data:
     redis:
       host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
-      database: 0
 
-  # 数据源配置
-  datasource:
-    url: jdbc:mysql://${DB_HOST:mysql}:${DB_PORT:3306}/${DB_NAME:awsome_shop_point}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-
-    # Druid 连接池配置 (生产环境调优)
-    druid:
-      initial-size: 10
-      min-idle: 5
-      max-active: 50
-      max-wait: 60000
-      test-while-idle: true
-      test-on-borrow: false
-      test-on-return: false
-      validation-query: SELECT 1
-      time-between-eviction-runs-millis: 60000
-      min-evictable-idle-time-millis: 300000
-
-      # 禁用 Druid 监控 (生产环境)
-      stat-view-servlet:
-        enabled: false
-
-# MyBatis-Plus 配置
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
-  global-config:
-    db-config:
-      banner: false
-
-# Security 配置
-security:
-  jwt:
-    secret: ${JWT_SECRET:docker-secret-key-for-jwt-token-must-be-at-least-256-bits-long-for-hmac-sha256}
-    expiration: ${JWT_EXPIRATION:7200}
-    issuer: awsome-shop-point-service
-  login:
-    max-failed-attempts: 5
-    lock-duration: 1800
-
-# Shop 配置
-shop:
-  security:
-    encryption:
-      key: ${ENCRYPTION_KEY:dockerEncryptionKey1234567890ab}
-
-# 日志配置
-logging:
-  level:
-    root: INFO
-    com.awsome: INFO
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
