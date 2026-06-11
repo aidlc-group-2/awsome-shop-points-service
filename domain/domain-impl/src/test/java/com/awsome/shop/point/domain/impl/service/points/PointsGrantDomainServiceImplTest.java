@@ -85,7 +85,7 @@ class PointsGrantDomainServiceImplTest {
     @DisplayName("grant 成功：创建批次、增加余额、写 GRANT 流水")
     void grantShouldCreateBatchAndTransaction() {
         PointsAccountEntity account = account(100L);
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account);
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account);
         stubRule(365);
 
         pointsGrantDomainService.grant(1L, 500L, GrantType.ONBOARDING, "入职奖励");
@@ -114,7 +114,7 @@ class PointsGrantDomainServiceImplTest {
     @Test
     @DisplayName("grant 规则未配置有效期时批次永不过期")
     void grantShouldCreateNonExpiringBatchWithoutValidityDays() {
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account(0L));
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account(0L));
         stubRule(null);
 
         pointsGrantDomainService.grant(1L, 100L, GrantType.MANUAL, "手动发放");
@@ -141,7 +141,7 @@ class PointsGrantDomainServiceImplTest {
     @DisplayName("deduct 成功：FIFO 消耗批次、扣减余额、写 DEDUCT 流水")
     void deductShouldConsumeBatchesFifo() {
         PointsAccountEntity account = account(300L);
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account);
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account);
         PointsBatchEntity first = activeBatch(100L);
         PointsBatchEntity second = activeBatch(200L);
         when(pointsBatchRepository.findActiveBatchesByUserId(1L)).thenReturn(List.of(first, second));
@@ -169,7 +169,7 @@ class PointsGrantDomainServiceImplTest {
     @DisplayName("deduct 刚好够扣时只消耗到所需额度")
     void deductShouldStopWhenSatisfied() {
         PointsAccountEntity account = account(300L);
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account);
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account);
         PointsBatchEntity first = activeBatch(100L);
         PointsBatchEntity second = activeBatch(200L);
         when(pointsBatchRepository.findActiveBatchesByUserId(1L)).thenReturn(List.of(first, second));
@@ -185,7 +185,7 @@ class PointsGrantDomainServiceImplTest {
     @Test
     @DisplayName("deduct 余额不足时抛 POINTS_001")
     void deductShouldRejectInsufficientBalance() {
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account(50L));
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account(50L));
 
         assertThatThrownBy(() -> pointsGrantDomainService.deduct(1L, 100L, "order-3"))
                 .isInstanceOf(BusinessException.class)
@@ -211,7 +211,7 @@ class PointsGrantDomainServiceImplTest {
     @DisplayName("refund 成功：创建 OTHER 类型批次并写 REFUND 流水")
     void refundShouldCreateBatchAndTransaction() {
         PointsAccountEntity account = account(100L);
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account);
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account);
         stubRule(365);
 
         pointsGrantDomainService.refund(1L, 200L, "order-5");
@@ -245,7 +245,7 @@ class PointsGrantDomainServiceImplTest {
     @DisplayName("adjust 正数：创建 MANUAL 批次并写 ADJUST 流水（含操作人）")
     void adjustPositiveShouldCreateManualBatch() {
         PointsAccountEntity account = account(100L);
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account);
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account);
         stubRule(365);
 
         pointsGrantDomainService.adjust(1L, 50L, "客服补偿", 99L);
@@ -267,7 +267,7 @@ class PointsGrantDomainServiceImplTest {
     @DisplayName("adjust 负数：FIFO 消耗批次并扣减余额")
     void adjustNegativeShouldConsumeBatches() {
         PointsAccountEntity account = account(200L);
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account);
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account);
         PointsBatchEntity batch = activeBatch(200L);
         when(pointsBatchRepository.findActiveBatchesByUserId(1L)).thenReturn(List.of(batch));
 
@@ -285,7 +285,7 @@ class PointsGrantDomainServiceImplTest {
     @Test
     @DisplayName("adjust 负数超出余额时抛 POINTS_001")
     void adjustNegativeShouldRejectInsufficientBalance() {
-        when(pointsAccountDomainService.getOrCreateAccount(1L)).thenReturn(account(30L));
+        when(pointsAccountDomainService.getOrCreateAccountForUpdate(1L)).thenReturn(account(30L));
 
         assertThatThrownBy(() -> pointsGrantDomainService.adjust(1L, -100L, "回收", 99L))
                 .isInstanceOf(BusinessException.class)
@@ -300,7 +300,7 @@ class PointsGrantDomainServiceImplTest {
     void adjustZeroShouldBeNoOp() {
         pointsGrantDomainService.adjust(1L, 0L, "无操作", 99L);
 
-        verify(pointsAccountDomainService, never()).getOrCreateAccount(anyLong());
+        verify(pointsAccountDomainService, never()).getOrCreateAccountForUpdate(anyLong());
         verify(pointsTransactionRepository, never()).save(any());
     }
 }
