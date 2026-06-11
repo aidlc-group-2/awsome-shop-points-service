@@ -17,4 +17,9 @@ public interface PointsTransactionRepository {
      * 保存变动记录
      */
     void save(PointsTransactionEntity entity);
+
+    /**
+     * 判断指定订单+类型的流水是否已存在（幂等去重）。
+     */
+    boolean existsByOrderRefAndType(String orderRef, com.awsome.shop.point.domain.model.points.TransactionType type);
 }

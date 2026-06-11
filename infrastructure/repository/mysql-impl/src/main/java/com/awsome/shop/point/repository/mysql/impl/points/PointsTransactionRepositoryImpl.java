@@ -50,6 +50,14 @@ public class PointsTransactionRepositoryImpl implements PointsTransactionReposit
         entity.setId(po.getId());
     }
 
+    @Override
+    public boolean existsByOrderRefAndType(String orderRef, TransactionType type) {
+        if (orderRef == null) {
+            return false;
+        }
+        return pointsTransactionMapper.countByOrderRefAndType(orderRef, type.name()) > 0;
+    }
+
     private PointsTransactionEntity toEntity(PointsTransactionPO po) {
         PointsTransactionEntity entity = new PointsTransactionEntity();
         entity.setId(po.getId());
