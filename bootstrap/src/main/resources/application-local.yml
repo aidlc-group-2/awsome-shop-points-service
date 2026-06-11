@@ -23,9 +23,9 @@ spring:
       
   # 数据源配置
   datasource:
-    url: jdbc:mysql://localhost:3307/awsome_shop_point?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/awsome_shop_point?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
 
@@ -94,4 +94,3 @@ shop:
     encryption:
       # AES-256 加密密钥 (32字节，本地开发环境使用固定密钥)
       key: localDevEncryptionKey1234567890ab
-
